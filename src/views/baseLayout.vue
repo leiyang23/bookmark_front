@@ -7,8 +7,8 @@
                     <el-col :span="16" :offset="4">
                         <div class="header">
                             <div class="nav">
-                                <div class="logo">
-                                    <span class="fa fa-envira fa-lg"></span>
+                                <div class="logo" @click="goto('/')">
+                                    <span class="fa fa-envira fa-2x"></span>
                                 </div>
                                 <div>导航一</div>
                                 <div>导航二</div>
@@ -18,9 +18,9 @@
                                 <el-dropdown v-if="is_login" @command="handleCommand">
                                     <div class="avatar">
                                         <div class="img">
-                                            <img :src="avatar_url">
+                                            <img :src="user.avatar_url">
                                         </div>
-                                        <span>{{name}}</span>
+                                        <span>{{user.name}}</span>
                                         <i class="el-icon-caret-bottom"></i>
                                     </div>
                                     <el-dropdown-menu slot="dropdown">
@@ -52,7 +52,8 @@
     name: "baseLayout",
     data() {
       return {
-        is_login: false
+        is_login: false,
+        user: null
       }
     },
     props: {
@@ -67,22 +68,28 @@
       }
     },
 
+
     mounted() {
-      let user = localStorage.getItem("user");
-      if (user) {
-        let u = JSON.parse(user);
-        this.name = u.name;
-        this.avatar_url = u.avatar_url;
-        this.bio = u.bio;
-      }
       if (this.name) {
         this.is_login = true;
-        localStorage.setItem("user", JSON.stringify({
+        this.user = {
           name: this.name,
           avatar_url: this.avatar_url,
           bio: this.bio
-        }))
+        };
+        localStorage.setItem("user", JSON.stringify(this.user))
+        this.$router.push("/")
+      }else {
+        let u = localStorage.getItem("user");
+        if (u) {
+          this.user = JSON.parse(u);
+          this.is_login = true;
+        }else {
+          this.is_login = false
+        }
       }
+
+
 
     },
     methods: {
@@ -98,16 +105,19 @@
         // this.$router.push(path); // 第一种方式
         this.$message({
           dangerouslyUseHTMLString: true,
-          message:"&nbsp;&nbsp;&nbsp;登录中....",
-          type:"info",
-          duration:0,
-          iconClass:"el-icon-loading",
+          message: "&nbsp;&nbsp;&nbsp;登录中....",
+          type: "info",
+          duration: 0,
+          iconClass: "el-icon-loading",
         });
         let a = document.createElement("a");
         let href = "https://github.com/login/oauth/authorize?client_id=faf744205623aab0ff00&scope=user,public_repo"
         a.setAttribute('href', href);
         document.body.appendChild(a);
         a.click();
+      },
+      goto(path){
+        this.$router.push(path)
       }
     }
 
@@ -129,6 +139,7 @@
             div {
                 margin-right: 30px;
                 cursor: pointer;
+                line-height: 40px;
             }
 
             .logo {
