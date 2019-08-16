@@ -1,8 +1,7 @@
 <template>
     <div>
-
         <el-container>
-            <el-header>
+            <el-header class="header_">
                 <el-row>
                     <el-col :span="16" :offset="4">
                         <div class="header">
@@ -10,9 +9,13 @@
                                 <div class="logo" @click="goto('/')">
                                     <span class="fa fa-envira fa-2x"></span>
                                 </div>
-                                <div>导航一</div>
-                                <div>导航二</div>
-                                <div>导航三</div>
+                                <div class="nav-btn" @click="goto('/',1)" :style="{color:navIndex==1?'#42b983':'#111'}">
+                                    推荐
+                                </div>
+                                <div class="nav-btn" @click="goto('/selfNav',2)"
+                                     :style="{color:navIndex==2?'#42b983':'#111'}">我的
+                                </div>
+                                 <div class="nav-btn" @click="goto('/shareNav',3)" :style="{color:navIndex==3?'#42b983':'#111'}">分享</div>
                             </div>
                             <div class="user">
                                 <el-dropdown v-if="is_login" @command="handleCommand">
@@ -29,7 +32,7 @@
                                     </el-dropdown-menu>
                                 </el-dropdown>
 
-                                <div class="login" v-else @click="login('/login')" title="点我登录">
+                                <div class="login" v-else @click="login" title="点我登录">
                                     <span class="fa fa-github fa-2x"></span>
                                 </div>
 
@@ -39,6 +42,7 @@
                     </el-col>
                 </el-row>
             </el-header>
+
             <el-main>
                 <router-view></router-view>
             </el-main>
@@ -53,11 +57,15 @@
     data() {
       return {
         is_login: false,
-        user: null
+        user: null,
+        navIndex: 1
       }
     },
     props: {
       name: {
+        default: null
+      },
+      github_id: {
         default: null
       },
       avatar_url: {
@@ -65,6 +73,9 @@
       },
       bio: {
         defult: ''
+      },
+      token: {
+        default: null
       }
     },
 
@@ -73,35 +84,36 @@
       if (this.name) {
         this.is_login = true;
         this.user = {
+          github_id: this.github_id,
           name: this.name,
           avatar_url: this.avatar_url,
-          bio: this.bio
+          bio: this.bio,
+          token: this.token,
+
         };
-        localStorage.setItem("user", JSON.stringify(this.user))
+        localStorage.setItem("user", JSON.stringify(this.user));
         this.$router.push("/")
-      }else {
+      } else {
         let u = localStorage.getItem("user");
         if (u) {
           this.user = JSON.parse(u);
           this.is_login = true;
-        }else {
+        } else {
           this.is_login = false
         }
       }
 
 
-
     },
     methods: {
       handleCommand(command) {
-        if (command === "myCollect") {
-          this.goto("/myCollect")
-        } else if (command === "logout") {
+        if (command === "logout") {
           this.is_login = false;
-          localStorage.removeItem("user")
+          localStorage.removeItem("user");
+          this.$router.push("/")
         }
       },
-      login(path) {
+      login() {
         // this.$router.push(path); // 第一种方式
         this.$message({
           dangerouslyUseHTMLString: true,
@@ -116,8 +128,10 @@
         document.body.appendChild(a);
         a.click();
       },
-      goto(path){
-        this.$router.push(path)
+      goto(path,navIndex) {
+        this.$router.push(path);
+        this.navIndex = navIndex;
+
       }
     }
 
@@ -137,13 +151,25 @@
             flex-direction: row;
 
             div {
-                margin-right: 30px;
                 cursor: pointer;
-                line-height: 40px;
+                line-height: 46px;
             }
 
             .logo {
                 color: #42b983;
+                margin-right: 60px;
+            }
+
+            .nav-btn {
+                margin-right: 40px;
+                padding: 0 10px;
+                transition: all ease-in-out .1s;
+                letter-spacing: 3px;
+            }
+
+            .nav-btn:hover {
+                /*background-color: #b0b948;*/
+                border-bottom: #42b983 1px solid;
             }
         }
 

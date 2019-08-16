@@ -1,12 +1,12 @@
 <template>
     <div>
-        
+        <h2>占个坑</h2>
     </div>
 </template>
 
 <script>
   export default {
-    name: "myCollect"
+    name: "sharefNav"
   }
 </script>
 

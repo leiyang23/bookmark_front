@@ -5,6 +5,7 @@ import ElemetUI from 'element-ui'
 import "element-ui/lib/theme-chalk/index.css"
 import http from './utils/http'
 import 'font-awesome/css/font-awesome.css'
+import './assets/global.less'
 
 Vue.use(ElemetUI);
 

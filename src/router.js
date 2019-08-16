@@ -10,17 +10,22 @@ export default new Router({
       path: '/',
       name: 'home',
       component: baseLayout,
-      props: (route) => ({ name: route.query.name, avatar_url: route.query.avatar_url,bio:route.query.bio}),
+      props: (route) => ({ github_id:route.query.github_id,token:route.query.token,name: route.query.name, avatar_url: route.query.avatar_url,bio:route.query.bio}),
       children:[
         {
           path: '',
-          name: 'index',
-          component: () => import('./views/pages/index.vue')
+          name: 'commonNav',
+          component: () => import('./views/bookmark/commonNav.vue')
         },
         {
-          path: 'myCollect',
-          name: 'myCollect',
-          component: () => import('./views/pages/myCollect.vue')
+          path: 'selfNav',
+          name: 'selfNav',
+          component: () => import('./views/bookmark/selfNav.vue')
+        },
+        {
+          path: 'shareNav',
+          name: 'shareNav',
+          component: () => import('./views/bookmark/shareNav.vue')
         },
 
       ]
