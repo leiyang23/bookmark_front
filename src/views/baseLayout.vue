@@ -123,7 +123,7 @@
           iconClass: "el-icon-loading",
         });
         let a = document.createElement("a");
-        let href = "https://github.com/login/oauth/authorize?client_id=faf744205623aab0ff00&scope=user,public_repo"
+        let href = "https://github.com/login/oauth/authorize?client_id=e55a48b68553ec2b350c&scope=user,public_repo"
         a.setAttribute('href', href);
         document.body.appendChild(a);
         a.click();
