@@ -3,7 +3,8 @@ import qs from 'qs'
 
 //  常规设置
 const http = axios.create({
-  baseURL:'http://localhost:10086',
+  // baseURL:'http://localhost:10086',
+  baseURL:'http://bookmark-backend.freaks.group',
   headers:{
     // 'content-type':'application/json'
   }
