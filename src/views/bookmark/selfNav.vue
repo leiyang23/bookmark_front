@@ -7,21 +7,22 @@
                 <div v-for="(item,index_1) in self_bookmarks">
                     <div class="category-title">
                         <div><h3>{{item.category_name}}</h3></div>
-                        <div title="删除分类" @click="delCategory(item.category_id,index_1)">
+                        <div title="删除分类" @click="delCategory(item.id,index_1)">
                             <span class="fa fa-minus"></span>
                         </div>
                     </div>
                     <div class="category">
                         <Bookmark v-for="(bookmark,index_2) in item.bookmarks" @close="delBookmark(index_1,index_2)"
                                   :title="bookmark.title" :url="bookmark.url"/>
-                        <div class="add-btn" @click="showDialog(item.category_id,index_1)" title="添加书签">
+                        <div class="add-btn" @click="showDialog(item.id,index_1)" title="添加书签">
                             <span class="fa fa-plus"></span>
                         </div>
                     </div>
                 </div>
 
-                <div class="add-category-bar" title="添加分类" @click="dialogFormVisible_2 = true"><span
-                        class="fa fa-plus"></span></div>
+                <div class="add-category-bar" title="添加分类" @click="dialogFormVisible_2 = true">
+                    <span class="fa fa-plus"></span>
+                </div>
 
 
             </el-col>
@@ -59,156 +60,146 @@
 </template>
 
 <script>
-  import Bookmark from '../../components/Bookmark.vue'
+    import Bookmark from '../../components/Bookmark.vue'
 
-  export default {
-    name: "selfNav",
-    components: {
-      Bookmark: Bookmark,
-    },
-    data() {
-      return {
-        index: 1,
-        bookmarkForm: {
-          category_id: ''
+    export default {
+        name: "selfNav",
+        components: {
+            Bookmark: Bookmark,
         },
-        dialogFormVisible: false,
-        self_bookmarks: [],
+        data() {
+            return {
+                c_index: 1,
+                bookmarkForm: {
+                    category_id: ''
+                },
+                dialogFormVisible: false,
+                self_bookmarks: [],
 
-        dialogFormVisible_2: false,
-        categoryForm: {
-          category_name: ''
+                dialogFormVisible_2: false,
+                categoryForm: {
+                    category_name: ''
+                },
+            }
         },
-      }
-    },
-    mounted() {
-      this.get_self_bookmark()
-    },
-    methods: {
-      get_self_bookmark() {
-        let that = this;
-        that.$http({
-          url: "/bookmark/self_bookmark",
-          params: {
-            github_id: JSON.parse(localStorage.getItem("user")).github_id
-          }
-        }).then(res => {
-          if (res.data.errcode === 0) {
-            that.self_bookmarks = res.data.data
-          }
-        })
-      },
-      showDialog(category_id, index) {
-        this.dialogFormVisible = true;
-        this.bookmarkForm.category_id = category_id;
-        this.index = index
-      },
-      delBookmark(index_1, index_2) {
-        // 删除书签
-        let that = this;
-        let u = JSON.parse(localStorage.getItem("user"));
-        that.$http({
-          url: '/bookmark/del_bookmark',
-          method: "POST",
-          data: {
-            github_id: u.github_id,
-            token: u.token,
-            category_id: that.self_bookmarks[index_1],
-            bookmark_id: that.self_bookmarks[index_1].bookmarks[index_2].bookmark_id,
-          }
-        }).then(res => {
-          if (res.data.errcode == 0) {
-            that.$message({
-              message: "删除成功",
-              type: "success"
-            });
-            this.self_bookmarks[index_1].bookmarks.splice(index_2, 1);
-          } else {
-            that.$message({
-              message: res.data.msg,
-              type: "error"
-            })
-          }
-        })
+        mounted() {
+            this.get_self_bookmark()
+        },
+        methods: {
+            get_self_bookmark() {
+                let that = this;
+                that.$http({
+                    url: "/bookmark/category",
+                    params: {
+                        tag: 2
+                    }
+                }).then(res => {
+                    if (res.data.errcode === 0) {
+                        that.self_bookmarks = res.data.data
+                        console.log(that.self_bookmarks)
+                    }
+                })
+            },
+            showDialog(category_id, index) {
+                this.dialogFormVisible = true;
+                this.bookmarkForm.category_id = category_id;
+                this.c_index = index
+            },
+            delBookmark(index_1, index_2) {
+                console.log(index_1,index_2)
+                // 删除书签
+                let that = this;
+                console.log(that.self_bookmarks[index_1].bookmarks[index_2])
+                that.$http({
+                    url: '/bookmark/bookmark',
+                    method: "DELETE",
+                    data: {
+                        bookmark_id: that.self_bookmarks[index_1].bookmarks[index_2].id,
+                    }
+                }).then(res => {
+                    if (res.data.errcode == 0) {
+                        that.$message({
+                            message: "删除成功",
+                            type: "success"
+                        });
+                        this.self_bookmarks[index_1].bookmarks.splice(index_2, 1);
+                    } else {
+                        that.$message({
+                            message: res.data.msg,
+                            type: "error"
+                        })
+                    }
+                })
+            },
+            addBookmark() {
+                // 添加书签
+                let that = this;
+                console.log(that.self_bookmarks[that.c_index])
+                that.$http({
+                    url: "/bookmark/bookmark",
+                    method: "POST",
+                    data: {
+                        category_id: that.self_bookmarks[that.c_index].id,
+                        title: that.bookmarkForm.title,
+                        url: that.bookmarkForm.url,
+                    }
+                }).then(res => {
+                    if (res.data.errcode == 0) {
+                        that.$message({
+                            message: "添加成功",
+                            type: "success"
+                        });
+                        that.self_bookmarks[that.c_index].bookmarks.push(that.bookmarkForm);
+                        that.bookmarkForm = {};
+                        that.dialogFormVisible = false
+                    } else {
+                        that.$message({
+                            message: res.data.msg,
+                            type: "error"
+                        })
+                    }
+                })
+            },
+            subCategory() {
+                let that = this;
+                that.$http({
+                    url: "/bookmark/category",
+                    method: "POST",
+                    data: {
+                        category_name: that.categoryForm.category_name
+                    }
+                }).then(res => {
+                    if (res.data.errcode == 0) {
+                        that.self_bookmarks.push({
+                            id: res.data.data.id,
+                            category_name: that.categoryForm.category_name,
+                            bookmarks: []
+                        });
+                        that.dialogFormVisible_2 = false;
+                    }
+                })
+            },
+            delCategory(category_id, index) {
+                let that = this;
+                that.$http({
+                    url: "/bookmark/category",
+                    method: "DELETE",
+                    data: {
+                        category_id: category_id
+                    }
+                }).then(res => {
+                    if (res.data.errcode == 0) {
+                        that.$message({
+                            message: "已删除",
+                            type: "success"
+                        });
+                        that.self_bookmarks.splice(index, 1);
+                    }
+                })
+            }
+        }
 
-      },
-      addBookmark() {
-        // 添加书签
-        let that = this;
-        let u = JSON.parse(localStorage.getItem("user"));
-        that.$http({
-          url: "/bookmark/add_bookmark",
-          method: "POST",
-          data: {
-            github_id: u.github_id,
-            token: u.token,
-            category_id: that.self_bookmarks[this.index].category_id,
-            title: that.bookmarkForm.title,
-            url: that.bookmarkForm.url,
-          }
-        }).then(res => {
-          if (res.data.errcode == 0) {
-            that.$message({
-              message: "添加成功",
-              type: "success"
-            });
-            that.self_bookmarks[that.index].bookmarks.push(that.bookmarkForm);
-            that.bookmarkForm = {};
-            that.dialogFormVisible = false
-          } else {
-            that.$message({
-              message: res.data.msg,
-              type: "error"
-            })
-          }
-        })
-      },
-      subCategory() {
-        let that = this;
-        let u = JSON.parse(localStorage.getItem("user"));
-        that.$http({
-          url: "/bookmark/add_category",
-          method: "POST",
-          data: {
-            github_id: u.github_id,
-            token: u.token,
-            category_name: that.categoryForm.category_name
-          }
-        }).then(res => {
-          if (res.data.errcode == 0) {
-            that.self_bookmarks.push({
-              category_id: res.data.data.category_id,
-              category_name: res.data.data.category_name,
-              self_bookmarks: []
-            });
-            that.dialogFormVisible_2 = false;
-          }
-        })
-      },
-      delCategory(category_id, index) {
-        let that = this;
-        let u = JSON.parse(localStorage.getItem("user"));
-        that.$http({
-          url: "/bookmark/del_category",
-          method: "POST",
-          data: {
-            github_id: u.github_id,
-            token: u.token,
-            category_id: category_id
-          }
-        }).then(res => {
-          if (res.data.errcode == 0) {
-            that.$message({
-              message: "已删除",
-              type: "success"
-            });
-            that.self_bookmarks.splice(index, 1);
-          }
-        })
-      }
     }
-
-  }
 </script>
 
 <style scoped lang="less">

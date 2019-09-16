@@ -39,11 +39,13 @@
       get_common_bookmark() {
         let that = this;
         that.$http({
-          url: "/bookmark/common_bookmark"
+          url: "/bookmark/category"
         }).then(res => {
           if (res.data.errcode == 0) {
             that.common_bookmarks = res.data.data
           }
+        }).catch(err => {
+            console.log(err)
         })
       },
     }
