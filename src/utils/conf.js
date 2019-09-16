@@ -1,4 +1,4 @@
-const DEBUG = true;
+const DEBUG = false;
 let GITHUB_APPID = ''
 if (DEBUG) {
     GITHUB_APPID = "faf744205623aab0ff00"
