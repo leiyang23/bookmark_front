@@ -54,13 +54,16 @@
 </template>
 
 <script>
+    import {GITHUB_APPID} from "../utils/conf";
+
     export default {
         name: "baseLayout",
         data() {
             return {
                 is_login: false,
                 user: null,
-                navIndex: 1
+                navIndex: 1,
+                github_appid:''
             }
         },
         mounted() {
@@ -96,7 +99,7 @@
             },
             login() {
                 let that = this;
-                let w = window.open("https://github.com/login/oauth/authorize?client_id=faf744205623aab0ff00&scope=user&state=github", '_blank', 'width=600,height=700,left=400,menubar=no,toolbar=no, status=no,scrollbars=yes');
+                let w = window.open("https://github.com/login/oauth/authorize?client_id=" + that.github_appid + "&scope=user&state=github", '_blank', 'width=600,height=700,left=400,menubar=no,toolbar=no, status=no,scrollbars=yes');
                 let t = setInterval(function () {
                     if (w.closed){
                         that.get_user_info();
