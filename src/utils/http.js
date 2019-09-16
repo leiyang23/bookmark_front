@@ -5,7 +5,7 @@ import qs from 'qs'
 const http = axios.create({
   // baseURL:'http://localhost:10086',
   baseURL:'http://bookmark-backend.freaks.group',
-  withCredentials: true,
+  // withCredentials: true,
   headers:{
     // 'content-type':'application/json'
   }
