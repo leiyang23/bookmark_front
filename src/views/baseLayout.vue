@@ -60,8 +60,6 @@
         name: "baseLayout",
         data() {
             return {
-                is_login: false,
-                user: null,
                 navIndex: 1,
             }
         },
@@ -72,17 +70,28 @@
                 const myParam = urlParams.get('code');
                 return myParam || false;
             },
+            is_login(){
+                return this.$store.state.is_login
+            },
+            user(){
+                return this.$store.state.user
+            }
         },
         mounted() {
-            if(this.code){
+            if (this.code) {
                 this.login()
+            }
+
+            let user = localStorage.getItem("user");
+            if(user){
+                this.$store.commit("login")
+                this.$store.commit("addUser",JSON.parse(user))
             }
         },
         methods: {
             handleCommand(command) {
                 if (command === "logout") {
-                    this.is_login = false;
-                    localStorage.removeItem("user");
+                    this.$store.commit("logout")
                     this.$router.push("/")
                 }
             },
@@ -97,7 +106,7 @@
                     url: "/login",
                     params: {
                         code: that.code,
-                        state:"github"
+                        state: "github"
                     }
                 }).then(res => {
                     if (res.data.errcode == 0) {
@@ -115,10 +124,11 @@
                     url: "/bookmark/get_user_info",
                 }).then(res => {
                     if (res.data.errcode == 0) {
-                        that.is_login = true;
-                        that.user = res.data.data;
-                        window.location.href  = "/"
-                    }else{
+                        that.$store.commit("login");
+                        that.$store.commit("addUser", res.data.data);
+                        localStorage.setItem("user",JSON.stringify(res.data.data))
+                        that.$router.go(-1)
+                    } else {
                         console.log(res.data)
                     }
                 })
