@@ -34,7 +34,7 @@
                                     </el-dropdown-menu>
                                 </el-dropdown>
 
-                                <div class="login" v-else @click="login" title="点我登录">
+                                <div class="login" v-else @click="handleLoginGithub" title="点我登录">
                                     <span class="fa fa-github fa-2x"></span>
                                 </div>
 
@@ -65,27 +65,17 @@
                 navIndex: 1,
             }
         },
+        computed: {
+            //计算属性获取,url中query code 参数
+            code() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const myParam = urlParams.get('code');
+                return myParam || false;
+            },
+        },
         mounted() {
-            if (this.name) {
-                this.is_login = true;
-                this.user = {
-                    github_id: this.github_id,
-                    name: this.name,
-                    avatar_url: this.avatar_url,
-                    bio: this.bio,
-                    token: this.token,
-
-                };
-                localStorage.setItem("user", JSON.stringify(this.user));
-                this.$router.push("/")
-            } else {
-                let u = localStorage.getItem("user");
-                if (u) {
-                    this.user = JSON.parse(u);
-                    this.is_login = true;
-                } else {
-                    this.is_login = false
-                }
+            if(this.code){
+                this.login()
             }
         },
         methods: {
@@ -96,17 +86,24 @@
                     this.$router.push("/")
                 }
             },
+            handleLoginGithub() {
+                //跳转到GitHub 授权页面
+                const url = "https://github.com/login/oauth/authorize?client_id=" + GITHUB_APPID + "&scope=user&state=github";
+                window.location.href = url
+            },
             login() {
                 let that = this;
-                let w = window.open("https://github.com/login/oauth/authorize?client_id=" + GITHUB_APPID + "&scope=user&state=github", '_blank', 'width=600,height=700,left=400,menubar=no,toolbar=no, status=no,scrollbars=yes');
-                let t = setInterval(function () {
-                    if (w.closed){
-                        that.get_user_info();
-                        clearInterval(t)
+                that.$http({
+                    url: "/login",
+                    params: {
+                        code: that.code,
+                        state:"github"
                     }
-                },300)
-
-
+                }).then(res => {
+                    if (res.data.errcode == 0) {
+                        that.get_user_info()
+                    }
+                })
             },
             goto(path, index) {
                 this.$router.push(path);
@@ -120,6 +117,7 @@
                     if (res.data.errcode == 0) {
                         that.is_login = true;
                         that.user = res.data.data;
+                        window.location.href  = "/"
                     }
                 })
             }

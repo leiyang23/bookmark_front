@@ -1,11 +1,11 @@
 import axios from 'axios'
 import qs from 'qs'
+import {BASE_URL} from "./conf";
 
 //  常规设置
 const http = axios.create({
-  // baseURL:'http://localhost:10086',
-  baseURL:'http://bookmark-backend.freaks.group',
-  // withCredentials: true,
+  baseURL:BASE_URL,
+  withCredentials: true,
   headers:{
     // 'content-type':'application/json'
   }
