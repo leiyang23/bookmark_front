@@ -118,6 +118,8 @@
                         that.is_login = true;
                         that.user = res.data.data;
                         window.location.href  = "/"
+                    }else{
+                        console.log(res.data)
                     }
                 })
             }
